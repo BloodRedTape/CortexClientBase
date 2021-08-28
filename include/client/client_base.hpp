@@ -9,6 +9,8 @@ struct ClientBase{
     void CheckForChanges();
 
     bool Connect(IpAddress address, Uint16 port);
+
+    void Disconnect();
 };
 
 #endif//CORTEX_CLIENT_BASE_HPP
