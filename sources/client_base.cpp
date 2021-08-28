@@ -1,18 +1,40 @@
 #include "client/client_base.hpp"
 #include "common/repository.hpp"
+#include "common/protocol.hpp"
 #include <iostream>
 
 void ClientBase::CheckForChanges(){
     sf::Packet packet;
 
     Socket::Status status = ServerConnection.receive(packet);
-    std::cout << status << std::endl;
-    if(status == Socket::Done){
-        puts("Got new state");
-        RepositoryState state;
-        packet >> state;
 
-        std::cout << state;
+    if(status == Socket::Done){
+        Header header;
+        packet >> header;
+
+        if(header.MagicWord != s_MagicWord){
+            std::cout << "Garbage packet" << std::endl;
+            return;
+        }
+
+        switch(header.Type){
+            case MsgType::Nop:{}break;
+            case MsgType::FileContentResponce:{
+                std::cout << "FileContentResponce\n";
+
+                FileContentResponce responce;
+                packet >> responce;
+            }break;
+            case MsgType::RepositoryStateNotify:{
+                std::cout << "RepositoryStateNotify\n";
+
+                RepositoryStateNotify notify;
+                packet >> notify;
+
+                std::cout << notify.State;
+            }break;
+            default:break;
+        }
     }
 }
 
