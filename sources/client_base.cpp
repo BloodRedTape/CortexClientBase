@@ -50,6 +50,23 @@ void ClientBase::Disconnect(){
     ServerConnection.disconnect();
 }
 
+void ClientBase::RequestFileContent(const fs::path &entry_name){
+    Packet packet;
+
+    Header header;
+    header.MagicWord = s_MagicWord;
+    header.Type = MsgType::FileContentRequest;
+
+    packet << header;
+
+    FileContentRequest request;
+    request.Name = entry_name.string(); // XXX garbage copy??
+
+    packet << request;
+
+    ServerConnection.send(packet);
+}
+
 void ClientBase::OnFileContentResponce(FileContentResponce responce){
     std::cout << "FileContentResponce\n";
 }

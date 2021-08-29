@@ -18,6 +18,8 @@ struct ClientBase{
 
     void Disconnect();
 
+    void RequestFileContent(const fs::path &entry_name);
+
     virtual void OnFileContentResponce(FileContentResponce responce);
 
     virtual void OnRepositoryStateNotify(RepositoryStateNotify notify);
