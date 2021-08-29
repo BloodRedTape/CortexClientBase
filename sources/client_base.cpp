@@ -20,18 +20,16 @@ void ClientBase::CheckForChanges(){
         switch(header.Type){
             case MsgType::Nop:{}break;
             case MsgType::FileContentResponce:{
-                std::cout << "FileContentResponce\n";
-
                 FileContentResponce responce;
                 packet >> responce;
+
+                OnFileContentResponce(std::move(responce));
             }break;
             case MsgType::RepositoryStateNotify:{
-                std::cout << "RepositoryStateNotify\n";
-
                 RepositoryStateNotify notify;
                 packet >> notify;
 
-                std::cout << notify.State;
+                OnRepositoryStateNotify(std::move(notify));
             }break;
             default:break;
         }
@@ -50,4 +48,14 @@ bool ClientBase::Connect(IpAddress address, Uint16 port){
 
 void ClientBase::Disconnect(){
     ServerConnection.disconnect();
+}
+
+void ClientBase::OnFileContentResponce(FileContentResponce responce){
+    std::cout << "FileContentResponce\n";
+}
+
+void ClientBase::OnRepositoryStateNotify(RepositoryStateNotify notify){
+    std::cout << "RepositoryStateNotify\n";
+    std::cout << "Name: " << notify.Name << std::endl;
+    std::cout << notify.State;
 }
