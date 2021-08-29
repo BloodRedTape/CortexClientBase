@@ -31,6 +31,13 @@ void ClientBase::CheckForChanges(){
 
                 OnRepositoryStateNotify(std::move(notify));
             }break;
+            case MsgType::RepositoriesInfo:{
+                RepositoriesInfo info;
+
+                packet >> info;
+
+                OnRepositoriesInfo(std::move(info));
+            }break;
             default:break;
         }
     }
@@ -75,4 +82,10 @@ void ClientBase::OnRepositoryStateNotify(RepositoryStateNotify notify){
     std::cout << "RepositoryStateNotify\n";
     std::cout << "Name: " << notify.Name << std::endl;
     std::cout << notify.State;
+}
+
+void ClientBase::OnRepositoriesInfo(RepositoriesInfo info){
+    std::cout << "Server has " << info.Names.size() << " repositories" << std::endl;
+    for(auto &name: info.Names)
+        std::cout << name << std::endl;
 }

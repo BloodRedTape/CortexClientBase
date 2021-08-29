@@ -24,6 +24,8 @@ struct ClientBase{
 
     virtual void OnRepositoryStateNotify(RepositoryStateNotify notify);
 
+    virtual void OnRepositoriesInfo(RepositoriesInfo info);
+
 };
 
 #endif//CORTEX_CLIENT_BASE_HPP
