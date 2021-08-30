@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.12)
 
 project(CortexClientBase)
 
@@ -11,6 +11,9 @@ set(CORTEX_CLIENT_BASE_SOURCES
 add_library(CortexClientBase STATIC 
     ${CORTEX_CLIENT_BASE_SOURCES}
 )
+
+add_compile_definitions(CORTEX_CLIENT)
+
 target_link_libraries(CortexClientBase 
     CortexCommon
 )

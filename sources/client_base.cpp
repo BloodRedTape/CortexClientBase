@@ -1,7 +1,8 @@
 #include "client/client_base.hpp"
 #include "common/repository.hpp"
 #include "common/protocol.hpp"
-#include <iostream>
+#include "common/log.hpp"
+#include <sstream>
 
 void ClientBase::CheckForChanges(){
     sf::Packet packet;
@@ -12,10 +13,8 @@ void ClientBase::CheckForChanges(){
         Header header;
         packet >> header;
 
-        if(header.MagicWord != s_MagicWord){
-            std::cout << "Garbage packet" << std::endl;
-            return;
-        }
+        if(header.MagicWord != s_MagicWord)
+            return Log("Garbage Packet");
 
         switch(header.Type){
             case MsgType::Nop:{}break;
@@ -77,20 +76,19 @@ void ClientBase::RequestFileContent(const fs::path &entry_name){
 }
 
 void ClientBase::OnFileContentResponce(FileContentResponce responce){
-    std::cout << "FileContentResponce\n";
-
-    std::cout << "File: " << responce.FileName << std::endl;
-    std::cout << "ContentSize: " << responce.FileContent.size() << std::endl;
+    Log("Got: FileContentResponce");
+    Println("File: {}", responce.FileName);
+    Println("FileSize: {}", responce.FileContent.size());
 }
 
 void ClientBase::OnRepositoryStateNotify(RepositoryStateNotify notify){
-    std::cout << "RepositoryStateNotify\n";
-    std::cout << "Name: " << notify.RepositoryName << std::endl;
-    std::cout << notify.RepositoryState;
+    Log("Got: RepositoryStateNotify");
+    Println("Name: ", notify.RepositoryName);
+    Println("{}",((std::stringstream&)(std::stringstream() << notify.RepositoryState)).str());
 }
 
 void ClientBase::OnRepositoriesInfo(RepositoriesInfo info){
-    std::cout << "Server has " << info.RepositoryNames.size() << " repositories" << std::endl;
+    Log("Server has {} repositories", info.RepositoryNames.size());
     for(auto &name: info.RepositoryNames)
-        std::cout << name << std::endl;
+        Println("{}", name);
 }
