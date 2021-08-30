@@ -58,6 +58,8 @@ void ClientBase::Disconnect(){
 }
 
 void ClientBase::RequestFileContent(const fs::path &entry_name){
+    assert(false);
+    
     Packet packet;
 
     Header header;
@@ -67,7 +69,7 @@ void ClientBase::RequestFileContent(const fs::path &entry_name){
     packet << header;
 
     FileContentRequest request;
-    request.Name = entry_name.string(); // XXX garbage copy??
+    request.FileName = entry_name.string(); // XXX garbage copy??
 
     packet << request;
 
@@ -76,16 +78,19 @@ void ClientBase::RequestFileContent(const fs::path &entry_name){
 
 void ClientBase::OnFileContentResponce(FileContentResponce responce){
     std::cout << "FileContentResponce\n";
+
+    std::cout << "File: " << responce.FileName << std::endl;
+    std::cout << "ContentSize: " << responce.FileContent.size() << std::endl;
 }
 
 void ClientBase::OnRepositoryStateNotify(RepositoryStateNotify notify){
     std::cout << "RepositoryStateNotify\n";
-    std::cout << "Name: " << notify.Name << std::endl;
-    std::cout << notify.State;
+    std::cout << "Name: " << notify.RepositoryName << std::endl;
+    std::cout << notify.RepositoryState;
 }
 
 void ClientBase::OnRepositoriesInfo(RepositoriesInfo info){
-    std::cout << "Server has " << info.Names.size() << " repositories" << std::endl;
-    for(auto &name: info.Names)
+    std::cout << "Server has " << info.RepositoryNames.size() << " repositories" << std::endl;
+    for(auto &name: info.RepositoryNames)
         std::cout << name << std::endl;
 }
