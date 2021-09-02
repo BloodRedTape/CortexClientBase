@@ -57,25 +57,6 @@ void ClientBase::Disconnect(){
     ServerConnection.disconnect();
 }
 
-void ClientBase::RequestFileContent(const fs::path &entry_name){
-    assert(false);
-    
-    Packet packet;
-
-    Header header;
-    header.MagicWord = s_MagicWord;
-    header.Type = MsgType::FileContentRequest;
-
-    packet << header;
-
-    FileContentRequest request;
-    request.FileName = entry_name.string(); // XXX garbage copy??
-
-    packet << request;
-
-    ServerConnection.send(packet);
-}
-
 bool ClientBase::GetOrCreateStoragePathForRepo(const std::string &name, fs::path &path){
     YAML::Node config = YAML::LoadFile("client_config.yaml");
 
@@ -122,12 +103,15 @@ void ClientBase::OnRepositoryStateNotify(RepositoryStateNotify notify){
 }
 
 void ClientBase::OnRepositoriesInfo(RepositoriesInfo info){
-    Log("Server has sent {} repositories", info.RepositoryNames.size());
-    for(auto &&name: info.RepositoryNames){
+    Log("Server has sent {} repositories", info.Repositories.size());
+    for(auto &&repo: info.Repositories){
         fs::path path;
-        if(GetOrCreateStoragePathForRepo(name, path))
-            Registry.OpenRepository(std::move(path), std::move(name));
-        else
-            Error("Can't open '{}' repo", name);
+        if(GetOrCreateStoragePathForRepo(repo.RepositoryName, path)){
+            Registry.OpenRepository(std::move(path), std::move(repo.RepositoryName));
+            
+            OnRepositoryStateNotify(repo);
+        }else{
+            Error("Can't open '{}' repo", repo.RepositoryName);
+        }
     }
 }
