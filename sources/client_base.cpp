@@ -5,7 +5,7 @@
 #include "yaml-cpp/yaml.h"
 #include <sstream>
 
-void ClientBase::CheckForChanges(){
+void ClientBase::DispatchIncomingMessages(){
     sf::Packet packet;
 
     Socket::Status status = ServerConnection.receive(packet);
@@ -15,7 +15,7 @@ void ClientBase::CheckForChanges(){
         packet >> header;
 
         if(header.MagicWord != s_MagicWord)
-            return Log("Garbage Packet");
+            return Log("Garbage Message");
 
         switch(header.Type){
             case MsgType::Nop:{}break;

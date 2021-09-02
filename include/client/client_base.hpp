@@ -13,13 +13,11 @@ struct ClientBase{
         return ServerConnection.getRemoteAddress() != IpAddress::Any;
     }
 
-    void CheckForChanges();
+    void DispatchIncomingMessages();
 
     bool Connect(IpAddress address, Uint16 port);
 
     void Disconnect();
-
-    void RequestFileContent(const fs::path &entry_name);
 
     bool GetOrCreateStoragePathForRepo(const std::string &name, fs::path &path);
 
