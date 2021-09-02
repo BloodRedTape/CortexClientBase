@@ -31,12 +31,12 @@ void ClientBase::CheckForChanges(){
 
                 OnRepositoryStateNotify(std::move(notify));
             }break;
-            case MsgType::RepositoriesInfo:{
-                RepositoriesInfo info;
+            case MsgType::AllRepositoriesStateNotify:{
+                AllRepositoriesStateNotify info;
 
                 packet >> info;
 
-                OnRepositoriesInfo(std::move(info));
+                OnAllRepositoriesStateNotify(std::move(info));
             }break;
             default:break;
         }
@@ -102,7 +102,7 @@ void ClientBase::OnRepositoryStateNotify(RepositoryStateNotify notify){
     Println("{}",((std::stringstream&)(std::stringstream() << notify.RepositoryState)).str());
 }
 
-void ClientBase::OnRepositoriesInfo(RepositoriesInfo info){
+void ClientBase::OnAllRepositoriesStateNotify(AllRepositoriesStateNotify info){
     Log("Server has sent {} repositories", info.Repositories.size());
     for(auto &&repo: info.Repositories){
         fs::path path;

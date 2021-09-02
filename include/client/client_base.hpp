@@ -27,7 +27,7 @@ struct ClientBase{
 
     virtual void OnRepositoryStateNotify(RepositoryStateNotify notify);
 
-    virtual void OnRepositoriesInfo(RepositoriesInfo info);
+    virtual void OnAllRepositoriesStateNotify(AllRepositoriesStateNotify info);
 
 };
 
