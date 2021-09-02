@@ -5,6 +5,10 @@
 #include "yaml-cpp/yaml.h"
 #include <sstream>
 
+ClientBase::ClientBase(const char *config_filepath):
+    Config(config_filepath)
+{}
+
 void ClientBase::DispatchIncomingMessages(){
     sf::Packet packet;
 
@@ -57,39 +61,6 @@ void ClientBase::Disconnect(){
     ServerConnection.disconnect();
 }
 
-bool ClientBase::GetOrCreateStoragePathForRepo(const std::string &name, fs::path &path){
-    YAML::Node config = YAML::LoadFile("client_config.yaml");
-
-    constexpr const char *DefaultRepositoriesStorage = "DefaultRepositoriesStorage";
-    constexpr const char *Repositories = "Repositories";
-    constexpr const char *Path = "Path";
-
-    if(config.IsNull())
-        return Error("Can't read a client_config.yaml");
-    if(!(config[DefaultRepositoriesStorage] && config[DefaultRepositoriesStorage].IsScalar()))
-        return Error("Config should have a '{}' value", DefaultRepositoriesStorage);
-    if(!fs::exists(config[DefaultRepositoriesStorage].as<std::string>()))
-        return Error("{} does not exist or ill-formated", DefaultRepositoriesStorage);
-    
-    const YAML::Node &repositories = config[Repositories];
-
-    if(repositories
-    && repositories[name]
-    && repositories[name][Path]){
-        path = config[Repositories][name][Path].as<std::string>();
-        Log("Repository '{}' has been found in config with path {}", name, path.string());
-    }else{
-        Log("Repository storage path is not found or ill-formated, using default one");
-
-        std::string default_path = config[DefaultRepositoriesStorage].as<std::string>();
-        path = default_path + "/" + name;
-
-        fs::create_directories(path);
-    }
-    
-    return true;
-}
-
 void ClientBase::OnFileContentResponce(FileContentResponce responce){
     Log("Got: FileContentResponce");
     Println("File: {}", responce.FileName);
@@ -105,13 +76,12 @@ void ClientBase::OnRepositoryStateNotify(RepositoryStateNotify notify){
 void ClientBase::OnAllRepositoriesStateNotify(AllRepositoriesStateNotify info){
     Log("Server has sent {} repositories", info.Repositories.size());
     for(auto &&repo: info.Repositories){
-        fs::path path;
-        if(GetOrCreateStoragePathForRepo(repo.RepositoryName, path)){
+        if(!Registry.IsOpen(repo.RepositoryName)){
+            fs::path path = Config.GetPath(repo.RepositoryName);
+        
             Registry.OpenRepository(std::move(path), std::move(repo.RepositoryName));
-            
-            OnRepositoryStateNotify(repo);
-        }else{
-            Error("Can't open '{}' repo", repo.RepositoryName);
         }
+            
+        OnRepositoryStateNotify(repo);
     }
 }

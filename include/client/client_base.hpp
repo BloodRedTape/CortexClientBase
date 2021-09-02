@@ -8,6 +8,9 @@
 struct ClientBase{
     Connection ServerConnection;
     RepositoriesRegistry Registry;
+    RepositoriesPathConfig Config;
+
+    ClientBase(const char *config_filepath);
 
     bool IsConnected()const{
         return ServerConnection.getRemoteAddress() != IpAddress::Any;
@@ -18,8 +21,6 @@ struct ClientBase{
     bool Connect(IpAddress address, Uint16 port);
 
     void Disconnect();
-
-    bool GetOrCreateStoragePathForRepo(const std::string &name, fs::path &path);
 
     virtual void OnFileContentResponce(FileContentResponce responce);
 
